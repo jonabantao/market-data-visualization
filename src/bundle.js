@@ -9470,8 +9470,10 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 // d3.json(url, (error, response))
 
 
-var symbols = 'amzn,nvda,aapl,fb,googl,msft,nflx,tsla,wmt,adbe,amat,cost,intc';
-var url = 'https://api.iextrading.com/1.0/stock/market/batch?symbols=' + symbols + '&types=quote,news,chart,earnings&range=1m&last=3';
+window.d3 = d3;
+
+var symbols = 'amzn,nvda,aapl,fb,googl,msft,nflx,tsla,wmt,adbe,amat,cost,intc,ge,amd,twtr';
+var url = 'https://api.iextrading.com/1.0/stock/market/batch?symbols=' + symbols + '&types=quote,news,chart,earnings&range=1y&last=3';
 // data.quote.peRatio
 // data.chart
 
@@ -9487,8 +9489,8 @@ var chart = d3.select('#chart').attr('width', width + margin.left + margin.right
 
 chart.append('text').attr('transform', 'translate(' + width / 2 + ', ' + (margin.top - 54) + ')').attr('id', 'title').text('Market Data');
 
-d3.json(url, function (err, data) {
-  var companies = Object.values(data);
+d3.json(url, function (err, res) {
+  var companies = Object.values(res);
 
   // Helper functions
   var formatMarketCap = function formatMarketCap(marketCap) {
@@ -9500,28 +9502,38 @@ d3.json(url, function (err, data) {
   };
 
   // Extract data
-  companies.forEach(function (d) {
+  companies.forEach(function (d, i) {
     d.marketCap = formatMarketCap(d.quote.marketCap);
     d.totalReturn = findTotalReturn(d.chart);
     d.peRatio = d.quote.peRatio;
     d.companyName = d.quote.symbol;
+    d.color = d3.schemeCategory20[i];
   });
 
+  // Idea to constrain circle size from 
+  // http://chimera.labs.oreilly.com/books/1230000000345/ch07.html#_refining_the_plot
+  var minPe = d3.min(companies, function (data) {
+    return data.peRatio;
+  });
+  var maxPe = d3.max(companies, function (data) {
+    return data.peRatio;
+  });
+  console.log(minPe);
+  console.log(maxPe);
+  var radiusScale = d3.scaleLinear().range([5, 20]).domain([minPe, maxPe]);
+
   // Set range of axes
-  x.domain([d3.min(companies, function (d) {
-    return d.marketCap - 100;
-  }), d3.max(companies, function (d) {
+  x.domain([0, d3.max(companies, function (d) {
     return d.marketCap + 100;
   })]);
+  y.domain(d3.extent(companies, function (d) {
+    return d.totalReturn;
+  }));
 
-  y.domain([d3.min(companies, function (d) {
-    return d.totalReturn - 25;
-  }), d3.max(companies, function (d) {
-    return d.totalReturn + 25;
-  })]);
-
-  chart.selectAll('dot').data(companies).enter().append('circle').attr('opacity', '0.5').attr('fill', 'red').attr('r', function (d) {
-    return d.peRatio * 0.5;
+  chart.selectAll('dot').data(companies).enter().append('circle').attr('opacity', '0.9').attr('fill', function (d) {
+    return d.color;
+  }).attr('r', function (d) {
+    return radiusScale(d.peRatio);
   }).attr('cx', function (d) {
     return x(d.marketCap);
   }).attr('cy', function (d) {
@@ -9529,7 +9541,20 @@ d3.json(url, function (err, data) {
   });
 
   // x axis information
-  chart.append('g').attr('transform', 'translate(0, ' + height + ')').call(d3.axisBottom(x));
+  // helper function to move x-axis to interect at 0 with y if negative returns
+  var translateRange = function translateRange() {
+    var yRange = d3.extent(companies, function (d) {
+      return d.totalReturn;
+    });
+
+    if (yRange[0] > 0) {
+      return height;
+    } else {
+      return yRange[1] / (yRange[1] - yRange[0]) * height;
+    }
+  };
+
+  chart.append('g').attr('transform', 'translate(0, ' + translateRange() + ')').call(d3.axisBottom(x));
 
   chart.append('text').attr('transform', 'translate(' + width / 2 + ', ' + (height + margin.top + 10) + ')').style('text-anchor', 'middle').text('Market Cap (in billions)');
 

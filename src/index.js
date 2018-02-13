@@ -8,8 +8,10 @@ import * as d3 from 'd3';
 // d3.json(url, (error, response))
 
 
-const symbols = 'amzn,nvda,aapl,fb,googl,msft,nflx,tsla,wmt,adbe,amat,cost,intc';
-const url = `https://api.iextrading.com/1.0/stock/market/batch?symbols=${symbols}&types=quote,news,chart,earnings&range=1m&last=3`;
+window.d3 = d3;
+
+const symbols = 'amzn,nvda,aapl,fb,googl,msft,nflx,tsla,wmt,adbe,amat,cost,intc,ge,amd,twtr';
+const url = `https://api.iextrading.com/1.0/stock/market/batch?symbols=${symbols}&types=quote,news,chart,earnings&range=1y&last=3`;
 // data.quote.peRatio
 // data.chart
 
@@ -35,8 +37,8 @@ chart.append('text')
   .text('Market Data');
 
 
-d3.json(url, (err, data) => {
-  const companies = Object.values(data);
+d3.json(url, (err, res) => {
+  const companies = Object.values(res);
 
   // Helper functions
   const formatMarketCap = marketCap => (
@@ -46,38 +48,53 @@ d3.json(url, (err, data) => {
   const findTotalReturn = prices => (
     parseFloat((prices[prices.length - 1].changeOverTime * 100).toFixed(2))
   );
-
+  
   // Extract data
-  companies.forEach(d => {
+  companies.forEach((d, i) => {
     d.marketCap = formatMarketCap(d.quote.marketCap);
     d.totalReturn = findTotalReturn(d.chart);
     d.peRatio = d.quote.peRatio;
     d.companyName = d.quote.symbol;
+    d.color = d3.schemeCategory20[i];
   });
 
-  // Set range of axes
-  x.domain([
-    d3.min(companies, d => d.marketCap - 100),
-    d3.max(companies, d => d.marketCap + 100)
-  ]);
+  // Idea to constrain circle size from 
+  // http://chimera.labs.oreilly.com/books/1230000000345/ch07.html#_refining_the_plot
+  let minPe = d3.min(companies, data => data.peRatio);
+  let maxPe = d3.max(companies, data => data.peRatio);
+  console.log(minPe);
+  console.log(maxPe);
+  let radiusScale = d3.scaleLinear().range([5,20]).domain([minPe, maxPe]);
 
-  y.domain([
-    d3.min(companies, d => d.totalReturn - 25),
-    d3.max(companies, d => d.totalReturn + 25)
-  ]);
+
+
+  // Set range of axes
+  x.domain([0, d3.max(companies, d => d.marketCap + 100)]);
+  y.domain(d3.extent(companies, d => d.totalReturn));
 
   chart.selectAll('dot')
     .data(companies)
     .enter().append('circle')
-    .attr('opacity', '0.5')
-    .attr('fill', 'red')
-    .attr('r', d => d.peRatio * 0.5)
+    .attr('opacity', '0.9')
+    .attr('fill', d => d.color)
+    .attr('r', d => radiusScale(d.peRatio))
     .attr('cx', d => x(d.marketCap))
     .attr('cy', d => y(d.totalReturn));
 
   // x axis information
+  // helper function to move x-axis to interect at 0 with y if negative returns
+  const translateRange = () => {
+    let yRange = d3.extent(companies, d => d.totalReturn);
+
+    if (yRange[0] > 0) {
+      return height;
+    } else {
+      return (yRange[1] / (yRange[1] - yRange[0])) * height;
+    }
+  };
+
   chart.append('g')
-    .attr('transform', `translate(0, ${height})`)
+    .attr('transform', `translate(0, ${translateRange()})`)
     .call(d3.axisBottom(x));
 
   chart.append('text')
