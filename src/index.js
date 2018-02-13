@@ -15,8 +15,8 @@ const url = "https://api.iextrading.com/1.0/stock/market/batch?symbols=amzn,nvda
 // data.chart
 
 const margin = { top: 40, right: 20, bottom: 60, left: 60 };
-const width = 960 - margin.left - margin.right;
-const height = 500 - margin.top - margin.bottom;
+const width = 1600 - margin.left - margin.right;
+const height = 900 - margin.top - margin.bottom;
 
 const x = d3.scaleLinear()
   .range([0, width]);
@@ -39,6 +39,7 @@ chart.append('text')
 d3.json(url, (err, data) => {
   const companies = Object.values(data);
 
+  // Helper functions
   const formatMarketCap = marketCap => (
     parseFloat((marketCap / 1000000000).toFixed(2))
   );
@@ -47,6 +48,7 @@ d3.json(url, (err, data) => {
     parseFloat((prices[prices.length - 1].changeOverTime * 100).toFixed(2))
   );
 
+  // Extract data
   companies.forEach(d => {
     d.marketCap = formatMarketCap(d.quote.marketCap);
     d.totalReturn = findTotalReturn(d.chart);
@@ -54,6 +56,7 @@ d3.json(url, (err, data) => {
     d.companyName = d.quote.symbol;
   });
 
+  // Set range of axes
   x.domain([
     d3.min(companies, d => d.marketCap - 100),
     d3.max(companies, d => d.marketCap + 100)
@@ -71,11 +74,25 @@ d3.json(url, (err, data) => {
     .attr('cx', d => x(d.marketCap))
     .attr('cy', d => y(d.totalReturn));
 
-
+  // x axis information
   chart.append('g')
     .attr('transform', `translate(0, ${height})`)
     .call(d3.axisBottom(x));
 
+  chart.append('text')
+    .attr('transform', `translate(${width / 2}, ${height + margin.top + 10})`)
+    .style('text-anchor', 'middle')
+    .text('Market Cap (in billions)');
+
+  // y axis information
   chart.append('g')
     .call(d3.axisLeft(y));
+
+  chart.append('text')
+    .attr('transform', 'rotate(-90)')
+    .attr('y', 0 - margin.left)
+    .attr('x', 0 - (height / 2))
+    .attr('dy', '1em')
+    .style('text-anchor', 'middle')
+    .text('Total Return (%)');
 });

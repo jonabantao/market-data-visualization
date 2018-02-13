@@ -9477,8 +9477,8 @@ var url = "https://api.iextrading.com/1.0/stock/market/batch?symbols=amzn,nvda,a
 // data.chart
 
 var margin = { top: 40, right: 20, bottom: 60, left: 60 };
-var width = 960 - margin.left - margin.right;
-var height = 500 - margin.top - margin.bottom;
+var width = 1600 - margin.left - margin.right;
+var height = 900 - margin.top - margin.bottom;
 
 var x = d3.scaleLinear().range([0, width]);
 
@@ -9491,6 +9491,7 @@ chart.append('text').attr('transform', 'translate(' + width / 2 + ', ' + (margin
 d3.json(url, function (err, data) {
   var companies = Object.values(data);
 
+  // Helper functions
   var formatMarketCap = function formatMarketCap(marketCap) {
     return parseFloat((marketCap / 1000000000).toFixed(2));
   };
@@ -9499,6 +9500,7 @@ d3.json(url, function (err, data) {
     return parseFloat((prices[prices.length - 1].changeOverTime * 100).toFixed(2));
   };
 
+  // Extract data
   companies.forEach(function (d) {
     d.marketCap = formatMarketCap(d.quote.marketCap);
     d.totalReturn = findTotalReturn(d.chart);
@@ -9506,6 +9508,7 @@ d3.json(url, function (err, data) {
     d.companyName = d.quote.symbol;
   });
 
+  // Set range of axes
   x.domain([d3.min(companies, function (d) {
     return d.marketCap - 100;
   }), d3.max(companies, function (d) {
@@ -9524,9 +9527,15 @@ d3.json(url, function (err, data) {
     return y(d.totalReturn);
   });
 
+  // x axis information
   chart.append('g').attr('transform', 'translate(0, ' + height + ')').call(d3.axisBottom(x));
 
+  chart.append('text').attr('transform', 'translate(' + width / 2 + ', ' + (height + margin.top + 10) + ')').style('text-anchor', 'middle').text('Market Cap (in billions)');
+
+  // y axis information
   chart.append('g').call(d3.axisLeft(y));
+
+  chart.append('text').attr('transform', 'rotate(-90)').attr('y', 0 - margin.left).attr('x', 0 - height / 2).attr('dy', '1em').style('text-anchor', 'middle').text('Total Return (%)');
 });
 
 /***/ }),
