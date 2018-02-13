@@ -9470,9 +9470,8 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 // d3.json(url, (error, response))
 
 
-window.d3 = d3;
-
-var url = "https://api.iextrading.com/1.0/stock/market/batch?symbols=amzn,nvda,aapl,fb,googl,msft,nflx,tsla&types=quote,news,chart,earnings&range=1y&last=3";
+var symbols = 'amzn,nvda,aapl,fb,googl,msft,nflx,tsla,wmt,adbe,amat,cost,intc';
+var url = 'https://api.iextrading.com/1.0/stock/market/batch?symbols=' + symbols + '&types=quote,news,chart,earnings&range=1m&last=3';
 // data.quote.peRatio
 // data.chart
 
@@ -9521,7 +9520,9 @@ d3.json(url, function (err, data) {
     return d.totalReturn + 25;
   })]);
 
-  chart.selectAll('dot').data(companies).enter().append('circle').attr('r', 5).attr('cx', function (d) {
+  chart.selectAll('dot').data(companies).enter().append('circle').attr('opacity', '0.5').attr('fill', 'red').attr('r', function (d) {
+    return d.peRatio * 0.5;
+  }).attr('cx', function (d) {
     return x(d.marketCap);
   }).attr('cy', function (d) {
     return y(d.totalReturn);

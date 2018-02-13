@@ -8,9 +8,8 @@ import * as d3 from 'd3';
 // d3.json(url, (error, response))
 
 
-window.d3 = d3;
-
-const url = "https://api.iextrading.com/1.0/stock/market/batch?symbols=amzn,nvda,aapl,fb,googl,msft,nflx,tsla&types=quote,news,chart,earnings&range=1y&last=3";
+const symbols = 'amzn,nvda,aapl,fb,googl,msft,nflx,tsla,wmt,adbe,amat,cost,intc';
+const url = `https://api.iextrading.com/1.0/stock/market/batch?symbols=${symbols}&types=quote,news,chart,earnings&range=1m&last=3`;
 // data.quote.peRatio
 // data.chart
 
@@ -70,7 +69,9 @@ d3.json(url, (err, data) => {
   chart.selectAll('dot')
     .data(companies)
     .enter().append('circle')
-    .attr('r', 5)
+    .attr('opacity', '0.5')
+    .attr('fill', 'red')
+    .attr('r', d => d.peRatio * 0.5)
     .attr('cx', d => x(d.marketCap))
     .attr('cy', d => y(d.totalReturn));
 

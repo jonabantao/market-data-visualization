@@ -1,6 +1,8 @@
+* {
+  margin: 0;
+  padding: 0;
+}
 
-.line {
-  fill: none;
-  stroke: steelblue;
-  stroke-width: 2px;
+svg {
+  padding: 30px;
 }
