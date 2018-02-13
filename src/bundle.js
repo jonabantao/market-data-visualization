@@ -9461,21 +9461,12 @@ var d3 = _interopRequireWildcard(_d);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-// https://api.iextrading.com/1.0/stock/market/batch?symbols=aapl,fb&types=quote,news,chart,earnings&range=1y&last=3
-// APPL.quote
-// APPL.chart = array last to now
-// ^^ Request to be used to extract data (initial load)
-// https://api.iextrading.com/1.0/stock/aapl/batch?types=quote,news,chart,earnings&range=1y&last=3
-// ^^ When user requests data
-// d3.json(url, (error, response))
-
-
 var symbols = 'amzn,hd,hsbc,baba,tsm,nvda,aapl,chl,c,nvs,fb,googl,v,pfe,msft,nflx,orcl,cmg,tsla,vz,wmt,adbe,ma,amat,cost,t,unh,intc,ge,wfc,amd,pg,twtr,panw,box,bud,sq,brk.a,jnj,xom,jpm,bac';
-var url = 'https://api.iextrading.com/1.0/stock/market/batch?symbols=' + symbols + '&types=quote,news,chart,earnings&range=1y&last=3';
+var url = 'https://api.iextrading.com/1.0/stock/market/batch?symbols=' + symbols + '&types=quote,news,chart,earnings&range=5y&last=3';
 
 var margin = { top: 40, right: 20, bottom: 60, left: 60 };
-var width = 1400 - margin.left - margin.right;
-var height = 700 - margin.top - margin.bottom;
+var width = 1600 - margin.left - margin.right;
+var height = 900 - margin.top - margin.bottom;
 
 var x = d3.scaleLinear().range([0, width]);
 
@@ -9483,7 +9474,10 @@ var y = d3.scaleLinear().range([height, 0]);
 
 var chart = d3.select('#chart').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
 
-chart.append('text').attr('transform', 'translate(' + width / 2 + ', ' + (margin.top - 54) + ')').attr('id', 'title').text('Total Return');
+// chart.append('text')
+//   .attr('transform', `translate(${width / 2}, ${margin.top - 54})`)
+//   .attr('id', 'title')
+//   .text('Total Return');
 
 d3.json(url, function (err, res) {
   var companies = Object.values(res);
@@ -9514,50 +9508,64 @@ d3.json(url, function (err, res) {
   var maxPe = d3.max(companies, function (data) {
     return data.peRatio;
   });
-  var radiusScale = d3.scaleLinear().range([5, 25]).domain([minPe, maxPe]);
+  var radiusScale = d3.scaleSqrt().range([10, 30]).domain([minPe, maxPe]);
 
   companies.forEach(function (d) {
     d.radius = radiusScale(d.peRatio);
   });
 
   // Set range of axes
-  x.domain([0, d3.max(companies, function (d) {
-    return d.marketCap;
+  x.domain([-10, d3.max(companies, function (d) {
+    return d.marketCap + 25;
   })]);
   y.domain(d3.extent(companies, function (d) {
-    return d.totalReturn;
+    return d.totalReturn * 1.1;
   }));
 
-  chart.selectAll('dot').data(companies).enter().append('circle').attr('opacity', '0.7').attr('fill', function (d) {
+  var circles = chart.selectAll('.stock').data(companies).enter().append('circle').attr('class', 'stock').attr('opacity', '0.7').attr('fill', function (d) {
     return d.color;
   }).attr('stroke', 'gray').attr('r', function (d) {
     return d.radius;
-  }).attr('cx', function (d) {
-    return x(d.marketCap);
-  }).attr('cy', function (d) {
-    return y(d.totalReturn);
   });
+
+  // Simulate entry and prevent collision
+  var simulation = d3.forceSimulation().force('x', d3.forceX(function (d) {
+    return x(d.marketCap);
+  }).strength(0.05)).force('y', d3.forceY(function (d) {
+    return y(d.totalReturn);
+  }).strength(0.05)).force('collide', d3.forceCollide(function (d) {
+    return d.radius * 0.75;
+  }));
+
+  var ticked = function ticked() {
+    circles.attr('cx', function (d) {
+      return d.x;
+    }).attr('cy', function (d) {
+      return d.y;
+    });
+  };
+
+  simulation.nodes(companies).on('tick', ticked);
 
   // x axis information
   // helper function to move x-axis to interect at 0 with y if negative returns
-  var translateRange = function translateRange() {
-    var yRange = d3.extent(companies, function (d) {
-      return d.totalReturn;
-    });
+  // const translateRange = () => {
+  //   let yRange = d3.extent(companies, d => d.totalReturn);
 
-    if (yRange[0] > 0) {
-      return height;
-    } else {
-      return yRange[1] / (yRange[1] - yRange[0]) * height;
-    }
-  };
+  //   if (yRange[0] > 0) {
+  //     return height;
+  //   } else {
+  //     return (yRange[1] / (yRange[1] - yRange[0])) * height;
+  //   }
+  // };
 
-  chart.append('g').attr('transform', 'translate(0, ' + translateRange() + ')').call(d3.axisBottom(x));
+  chart.append('g').attr('transform', 'translate(0, ' + height + ')').call(d3.axisBottom(x));
 
   chart.append('text').attr('transform', 'translate(' + width / 2 + ', ' + (height + margin.top + 10) + ')').style('text-anchor', 'middle').text('Market Cap (in billions)');
 
   // y axis information
-  chart.append('g').call(d3.axisLeft(y));
+  // chart.append('g')
+  //   .call(d3.axisLeft(y));
 
   chart.append('text').attr('transform', 'rotate(-90)').attr('y', 0 - margin.left).attr('x', 0 - height / 2).attr('dy', '1em').style('text-anchor', 'middle').text('Total Return (%)');
 });
