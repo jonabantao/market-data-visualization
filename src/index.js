@@ -8,16 +8,13 @@ import * as d3 from 'd3';
 // d3.json(url, (error, response))
 
 
-window.d3 = d3;
+const symbols = 'amzn,nvda,aapl,fb,googl,msft,nflx,tsla,wmt,adbe,amat,cost,intc,ge,wfc,amd,twtr,panw,box,sq,brk.a,jnj,xom,jpm,bac';
+const url = `https://api.iextrading.com/1.0/stock/market/batch?symbols=${symbols}&types=quote,news,chart,earnings&range=1m&last=3`;
 
-const symbols = 'amzn,nvda,aapl,fb,googl,msft,nflx,tsla,wmt,adbe,amat,cost,intc,ge,amd,twtr';
-const url = `https://api.iextrading.com/1.0/stock/market/batch?symbols=${symbols}&types=quote,news,chart,earnings&range=1y&last=3`;
-// data.quote.peRatio
-// data.chart
 
 const margin = { top: 40, right: 20, bottom: 60, left: 60 };
-const width = 1600 - margin.left - margin.right;
-const height = 900 - margin.top - margin.bottom;
+const width = 1400 - margin.left - margin.right;
+const height = 700 - margin.top - margin.bottom;
 
 const x = d3.scaleLinear()
   .range([0, width]);
@@ -34,7 +31,7 @@ const chart = d3.select('#chart')
 chart.append('text')
   .attr('transform', `translate(${width / 2}, ${margin.top - 54})`)
   .attr('id', 'title')
-  .text('Market Data');
+  .text('Total Return');
 
 
 d3.json(url, (err, res) => {
@@ -62,21 +59,19 @@ d3.json(url, (err, res) => {
   // http://chimera.labs.oreilly.com/books/1230000000345/ch07.html#_refining_the_plot
   let minPe = d3.min(companies, data => data.peRatio);
   let maxPe = d3.max(companies, data => data.peRatio);
-  console.log(minPe);
-  console.log(maxPe);
-  let radiusScale = d3.scaleLinear().range([5,20]).domain([minPe, maxPe]);
-
+  let radiusScale = d3.scaleLinear().range([5,25]).domain([minPe, maxPe]);
 
 
   // Set range of axes
-  x.domain([0, d3.max(companies, d => d.marketCap + 100)]);
+  x.domain([0, d3.max(companies, d => d.marketCap)]);
   y.domain(d3.extent(companies, d => d.totalReturn));
 
   chart.selectAll('dot')
     .data(companies)
     .enter().append('circle')
-    .attr('opacity', '0.9')
+    .attr('opacity', '0.7')
     .attr('fill', d => d.color)
+    .attr('stroke', 'gray')
     .attr('r', d => radiusScale(d.peRatio))
     .attr('cx', d => x(d.marketCap))
     .attr('cy', d => y(d.totalReturn));

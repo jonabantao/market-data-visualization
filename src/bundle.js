@@ -9470,16 +9470,12 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 // d3.json(url, (error, response))
 
 
-window.d3 = d3;
-
-var symbols = 'amzn,nvda,aapl,fb,googl,msft,nflx,tsla,wmt,adbe,amat,cost,intc,ge,amd,twtr';
-var url = 'https://api.iextrading.com/1.0/stock/market/batch?symbols=' + symbols + '&types=quote,news,chart,earnings&range=1y&last=3';
-// data.quote.peRatio
-// data.chart
+var symbols = 'amzn,nvda,aapl,fb,googl,msft,nflx,tsla,wmt,adbe,amat,cost,intc,ge,wfc,amd,twtr,panw,box,sq,brk.a,jnj,xom,jpm,bac';
+var url = 'https://api.iextrading.com/1.0/stock/market/batch?symbols=' + symbols + '&types=quote,news,chart,earnings&range=1m&last=3';
 
 var margin = { top: 40, right: 20, bottom: 60, left: 60 };
-var width = 1600 - margin.left - margin.right;
-var height = 900 - margin.top - margin.bottom;
+var width = 1400 - margin.left - margin.right;
+var height = 700 - margin.top - margin.bottom;
 
 var x = d3.scaleLinear().range([0, width]);
 
@@ -9487,7 +9483,7 @@ var y = d3.scaleLinear().range([height, 0]);
 
 var chart = d3.select('#chart').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
 
-chart.append('text').attr('transform', 'translate(' + width / 2 + ', ' + (margin.top - 54) + ')').attr('id', 'title').text('Market Data');
+chart.append('text').attr('transform', 'translate(' + width / 2 + ', ' + (margin.top - 54) + ')').attr('id', 'title').text('Total Return');
 
 d3.json(url, function (err, res) {
   var companies = Object.values(res);
@@ -9518,21 +9514,19 @@ d3.json(url, function (err, res) {
   var maxPe = d3.max(companies, function (data) {
     return data.peRatio;
   });
-  console.log(minPe);
-  console.log(maxPe);
-  var radiusScale = d3.scaleLinear().range([5, 20]).domain([minPe, maxPe]);
+  var radiusScale = d3.scaleLinear().range([5, 25]).domain([minPe, maxPe]);
 
   // Set range of axes
   x.domain([0, d3.max(companies, function (d) {
-    return d.marketCap + 100;
+    return d.marketCap;
   })]);
   y.domain(d3.extent(companies, function (d) {
     return d.totalReturn;
   }));
 
-  chart.selectAll('dot').data(companies).enter().append('circle').attr('opacity', '0.9').attr('fill', function (d) {
+  chart.selectAll('dot').data(companies).enter().append('circle').attr('opacity', '0.7').attr('fill', function (d) {
     return d.color;
-  }).attr('r', function (d) {
+  }).attr('stroke', 'gray').attr('r', function (d) {
     return radiusScale(d.peRatio);
   }).attr('cx', function (d) {
     return x(d.marketCap);

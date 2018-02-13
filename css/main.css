@@ -3,6 +3,10 @@
   padding: 0;
 }
 
+body {
+  font-family: sans-serif;
+}
+
 svg {
   padding: 30px;
 }
