@@ -9470,8 +9470,8 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 // d3.json(url, (error, response))
 
 
-var symbols = 'amzn,nvda,aapl,fb,googl,msft,nflx,tsla,wmt,adbe,amat,cost,intc,ge,wfc,amd,twtr,panw,box,sq,brk.a,jnj,xom,jpm,bac';
-var url = 'https://api.iextrading.com/1.0/stock/market/batch?symbols=' + symbols + '&types=quote,news,chart,earnings&range=1m&last=3';
+var symbols = 'amzn,hd,hsbc,baba,tsm,nvda,aapl,chl,c,nvs,fb,googl,v,pfe,msft,nflx,orcl,cmg,tsla,vz,wmt,adbe,ma,amat,cost,t,unh,intc,ge,wfc,amd,pg,twtr,panw,box,bud,sq,brk.a,jnj,xom,jpm,bac';
+var url = 'https://api.iextrading.com/1.0/stock/market/batch?symbols=' + symbols + '&types=quote,news,chart,earnings&range=1y&last=3';
 
 var margin = { top: 40, right: 20, bottom: 60, left: 60 };
 var width = 1400 - margin.left - margin.right;
@@ -9503,7 +9503,7 @@ d3.json(url, function (err, res) {
     d.totalReturn = findTotalReturn(d.chart);
     d.peRatio = d.quote.peRatio;
     d.companyName = d.quote.symbol;
-    d.color = d3.schemeCategory20[i];
+    d.color = d3.interpolateRainbow(Math.random());
   });
 
   // Idea to constrain circle size from 
@@ -9516,6 +9516,10 @@ d3.json(url, function (err, res) {
   });
   var radiusScale = d3.scaleLinear().range([5, 25]).domain([minPe, maxPe]);
 
+  companies.forEach(function (d) {
+    d.radius = radiusScale(d.peRatio);
+  });
+
   // Set range of axes
   x.domain([0, d3.max(companies, function (d) {
     return d.marketCap;
@@ -9527,7 +9531,7 @@ d3.json(url, function (err, res) {
   chart.selectAll('dot').data(companies).enter().append('circle').attr('opacity', '0.7').attr('fill', function (d) {
     return d.color;
   }).attr('stroke', 'gray').attr('r', function (d) {
-    return radiusScale(d.peRatio);
+    return d.radius;
   }).attr('cx', function (d) {
     return x(d.marketCap);
   }).attr('cy', function (d) {

@@ -8,8 +8,8 @@ import * as d3 from 'd3';
 // d3.json(url, (error, response))
 
 
-const symbols = 'amzn,nvda,aapl,fb,googl,msft,nflx,tsla,wmt,adbe,amat,cost,intc,ge,wfc,amd,twtr,panw,box,sq,brk.a,jnj,xom,jpm,bac';
-const url = `https://api.iextrading.com/1.0/stock/market/batch?symbols=${symbols}&types=quote,news,chart,earnings&range=1m&last=3`;
+const symbols = 'amzn,hd,hsbc,baba,tsm,nvda,aapl,chl,c,nvs,fb,googl,v,pfe,msft,nflx,orcl,cmg,tsla,vz,wmt,adbe,ma,amat,cost,t,unh,intc,ge,wfc,amd,pg,twtr,panw,box,bud,sq,brk.a,jnj,xom,jpm,bac';
+const url = `https://api.iextrading.com/1.0/stock/market/batch?symbols=${symbols}&types=quote,news,chart,earnings&range=1y&last=3`;
 
 
 const margin = { top: 40, right: 20, bottom: 60, left: 60 };
@@ -52,7 +52,7 @@ d3.json(url, (err, res) => {
     d.totalReturn = findTotalReturn(d.chart);
     d.peRatio = d.quote.peRatio;
     d.companyName = d.quote.symbol;
-    d.color = d3.schemeCategory20[i];
+    d.color = d3.interpolateRainbow(Math.random());
   });
 
   // Idea to constrain circle size from 
@@ -61,6 +61,9 @@ d3.json(url, (err, res) => {
   let maxPe = d3.max(companies, data => data.peRatio);
   let radiusScale = d3.scaleLinear().range([5,25]).domain([minPe, maxPe]);
 
+  companies.forEach(d => {
+    d.radius = radiusScale(d.peRatio);
+  });
 
   // Set range of axes
   x.domain([0, d3.max(companies, d => d.marketCap)]);
@@ -72,9 +75,11 @@ d3.json(url, (err, res) => {
     .attr('opacity', '0.7')
     .attr('fill', d => d.color)
     .attr('stroke', 'gray')
-    .attr('r', d => radiusScale(d.peRatio))
+    .attr('r', d => d.radius)
     .attr('cx', d => x(d.marketCap))
     .attr('cy', d => y(d.totalReturn));
+
+  
 
   // x axis information
   // helper function to move x-axis to interect at 0 with y if negative returns
