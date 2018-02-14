@@ -9461,8 +9461,8 @@ var d3 = _interopRequireWildcard(_d);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-var symbols = 'amzn,hd,hsbc,baba,tsm,nvda,aapl,chl,c,nvs,fb,googl,v,pfe,msft,nflx,orcl,cmg,tsla,vz,wmt,adbe,ma,amat,cost,t,unh,intc,ge,wfc,amd,pg,twtr,panw,box,bud,sq,brk.a,jnj,xom,jpm,bac';
-var url = 'https://api.iextrading.com/1.0/stock/market/batch?symbols=' + symbols + '&types=quote,news,chart,earnings&range=5y&last=3';
+var symbols = 'amzn,hd,hsbc,baba,tsm,nvda,aapl,amd,chl,c,nvs,fb,googl,v,pfe,msft,nflx,orcl,cmg,tsla,vz,wmt,adbe,ma,amat,cost,t,unh,intc,ge,wfc,amd,pg,twtr,panw,box,bud,sq,brk.a,jnj,xom,jpm,bac';
+var url = 'https://api.iextrading.com/1.0/stock/market/batch?symbols=' + symbols + '&types=quote,news,chart,earnings&range=1m&last=3';
 
 var margin = { top: 40, right: 20, bottom: 60, left: 60 };
 var width = 1600 - margin.left - margin.right;
@@ -9472,7 +9472,11 @@ var x = d3.scaleLinear().range([0, width]);
 
 var y = d3.scaleLinear().range([height, 0]);
 
-var chart = d3.select('#chart').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
+var chart = d3.select('#chart').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom).append('svg').attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
+
+var tooltip = d3.select('#chart').append('div').attr('class', 'tooltip')
+// .style('opacity', 0)
+.style('visibility', 'hidden');
 
 // chart.append('text')
 //   .attr('transform', `translate(${width / 2}, ${margin.top - 54})`)
@@ -9519,21 +9523,38 @@ d3.json(url, function (err, res) {
     return d.marketCap + 25;
   })]);
   y.domain(d3.extent(companies, function (d) {
-    return d.totalReturn * 1.1;
+    return d.totalReturn * 1.25;
   }));
 
-  var circles = chart.selectAll('.stock').data(companies).enter().append('circle').attr('class', 'stock').attr('opacity', '0.7').attr('fill', function (d) {
+  var mouseOver = function mouseOver(d) {
+    d3.select(this).raise().transition().attr('opacity', '1').duration('300').attr('r', 35).attr('cursor', 'pointer');
+  };
+
+  var mouseOut = function mouseOut(d) {
+    d3.select(this).transition()
+    // .attr('opacity', 0.7)
+    .attr('fill', d.color).attr('r', d.radius);
+  };
+
+  var mouseClick = function mouseClick(d) {
+    tooltip.transition().duration(200).style('visibility', 'visible');
+    tooltip.html(d.companyName).style('top', d3.event.pageY + 'px').style('left', d3.event.pageX + 'px');
+  };
+
+  var circles = chart.selectAll('.stock').data(companies).enter().append('circle').attr('class', 'stock')
+  // .attr('opacity', '0.7')
+  .attr('fill', function (d) {
     return d.color;
   }).attr('stroke', 'gray').attr('r', function (d) {
     return d.radius;
-  });
+  }).on('mouseover', mouseOver).on('mouseout', mouseOut).on('click', mouseClick);
 
   // Simulate entry and prevent collision
   var simulation = d3.forceSimulation().force('x', d3.forceX(function (d) {
     return x(d.marketCap);
-  }).strength(0.05)).force('y', d3.forceY(function (d) {
+  }).strength(0.1)).force('y', d3.forceY(function (d) {
     return y(d.totalReturn);
-  }).strength(0.05)).force('collide', d3.forceCollide(function (d) {
+  }).strength(0.1)).force('collide', d3.forceCollide(function (d) {
     return d.radius * 0.75;
   }));
 
@@ -9561,11 +9582,7 @@ d3.json(url, function (err, res) {
 
   chart.append('g').attr('transform', 'translate(0, ' + height + ')').call(d3.axisBottom(x));
 
-  chart.append('text').attr('transform', 'translate(' + width / 2 + ', ' + (height + margin.top + 10) + ')').style('text-anchor', 'middle').text('Market Cap (in billions)');
-
-  // y axis information
-  // chart.append('g')
-  //   .call(d3.axisLeft(y));
+  chart.append('text').attr('transform', 'translate(' + width / 2 + ', ' + (height + margin.top + 30) + ')').style('text-anchor', 'middle').text('Market Cap (in billions)');
 
   chart.append('text').attr('transform', 'rotate(-90)').attr('y', 0 - margin.left).attr('x', 0 - height / 2).attr('dy', '1em').style('text-anchor', 'middle').text('Total Return (%)');
 });

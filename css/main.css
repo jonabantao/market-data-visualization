@@ -5,8 +5,17 @@
 
 body {
   font-family: sans-serif;
+  background-color: whitesmoke;
 }
 
 svg {
   padding: 30px;
 }
+
+div.tooltip {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  pointer-events: none;
+  z-index: 100;
+};

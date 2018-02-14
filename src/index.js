@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 
-const symbols = 'amzn,hd,hsbc,baba,tsm,nvda,aapl,chl,c,nvs,fb,googl,v,pfe,msft,nflx,orcl,cmg,tsla,vz,wmt,adbe,ma,amat,cost,t,unh,intc,ge,wfc,amd,pg,twtr,panw,box,bud,sq,brk.a,jnj,xom,jpm,bac';
-const url = `https://api.iextrading.com/1.0/stock/market/batch?symbols=${symbols}&types=quote,news,chart,earnings&range=5y&last=3`;
+const symbols = 'amzn,hd,hsbc,baba,tsm,nvda,aapl,amd,chl,c,nvs,fb,googl,v,pfe,msft,nflx,orcl,cmg,tsla,vz,wmt,adbe,ma,amat,cost,t,unh,intc,ge,wfc,amd,pg,twtr,panw,box,bud,sq,brk.a,jnj,xom,jpm,bac';
+const url = `https://api.iextrading.com/1.0/stock/market/batch?symbols=${symbols}&types=quote,news,chart,earnings&range=1m&last=3`;
 
 
 const margin = { top: 40, right: 20, bottom: 60, left: 60 };
@@ -17,8 +17,13 @@ const y = d3.scaleLinear()
 const chart = d3.select('#chart')
   .attr('width', width + margin.left + margin.right)
   .attr('height', height + margin.top + margin.bottom)
-  .append('g')
+  .append('svg')
   .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+let tooltip = d3.select('#chart').append('div')
+  .attr('class', 'tooltip')
+  // .style('opacity', 0)
+  .style('visibility', 'hidden');
 
 // chart.append('text')
 //   .attr('transform', `translate(${width / 2}, ${margin.top - 54})`)
@@ -58,21 +63,48 @@ d3.json(url, (err, res) => {
 
   // Set range of axes
   x.domain([-10, d3.max(companies, d => d.marketCap + 25)]);
-  y.domain(d3.extent(companies, d => d.totalReturn * 1.1));
+  y.domain(d3.extent(companies, d => d.totalReturn * 1.25));
+
+  const mouseOver = function(d) {
+    d3.select(this).raise().transition()
+      .attr('opacity', '1')
+      .duration('300')
+      .attr('r', 35)
+      .attr('cursor', 'pointer');
+  };
+
+  const mouseOut = function(d) {
+    d3.select(this).transition()
+      // .attr('opacity', 0.7)
+      .attr('fill', d.color)
+      .attr('r', d.radius);
+  };
+
+  const mouseClick = function(d) {
+    tooltip.transition()
+      .duration(200)
+      .style('visibility', 'visible');
+    tooltip.html(d.companyName)
+      .style('top', `${d3.event.pageY}px`)
+      .style('left', `${d3.event.pageX}px`);
+  };
 
   let circles = chart.selectAll('.stock')
     .data(companies)
     .enter().append('circle')
     .attr('class', 'stock')
-    .attr('opacity', '0.7')
+    // .attr('opacity', '0.7')
     .attr('fill', d => d.color)
     .attr('stroke', 'gray')
-    .attr('r', d => d.radius);
+    .attr('r', d => d.radius)
+    .on('mouseover', mouseOver)
+    .on('mouseout', mouseOut)
+    .on('click', mouseClick);
 
   // Simulate entry and prevent collision
   const simulation = d3.forceSimulation()
-    .force('x', d3.forceX(d => x(d.marketCap)).strength(0.05))
-    .force('y', d3.forceY(d => y(d.totalReturn)).strength(0.05))
+    .force('x', d3.forceX(d => x(d.marketCap)).strength(0.1))
+    .force('y', d3.forceY(d => y(d.totalReturn)).strength(0.1))
     .force('collide', d3.forceCollide(d => d.radius * 0.75));
     
   const ticked = () => {
@@ -101,13 +133,9 @@ d3.json(url, (err, res) => {
     .call(d3.axisBottom(x));
 
   chart.append('text')
-    .attr('transform', `translate(${width / 2}, ${height + margin.top + 10})`)
+    .attr('transform', `translate(${width / 2}, ${height + margin.top + 30})`)
     .style('text-anchor', 'middle')
     .text('Market Cap (in billions)');
-
-  // y axis information
-  // chart.append('g')
-  //   .call(d3.axisLeft(y));
 
   chart.append('text')
     .attr('transform', 'rotate(-90)')
