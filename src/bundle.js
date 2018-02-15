@@ -9468,29 +9468,29 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 //Initialization of the chart
-var symbols = 'amzn,hd,hsbc,baba,tsm,nvda,aapl,amd,chl,c,nvs,fb,googl,v,pfe,msft,nflx,orcl,cmg,tsla,vz,wmt,adbe,ma,amat,cost,t,unh,intc,ge,wfc,amd,pg,twtr,panw,box,bud,sq,brk.a,jnj,xom,jpm,bac';
-var time = {
+var SYMBOLS = 'amzn,hd,hsbc,baba,tsm,nvda,aapl,amd,chl,c,nvs,fb,googl,v,pfe,msft,nflx,orcl,cmg,tsla,vz,wmt,adbe,ma,amat,cost,t,unh,intc,ge,wfc,amd,pg,twtr,panw,box,bud,sq,brk.a,jnj,xom,jpm,bac';
+var TIME = {
   oneMonth: '1m',
   oneYear: '1y',
   twoYears: '2y',
   fiveYears: '5y'
 };
-var timeFrame = time.oneYear;
-var url = 'https://api.iextrading.com/1.0/stock/market/batch?symbols=' + symbols + '&types=quote,news,chart,earnings&range=' + timeFrame + '&last=3';
+var timeFrame = TIME.oneYear;
+var url = 'https://api.iextrading.com/1.0/stock/market/batch?symbols=' + SYMBOLS + '&types=quote,news,chart,earnings&range=' + timeFrame + '&last=3';
 
-var margin = { top: 40, right: 20, bottom: 60, left: 20 };
-var width = 1400 - margin.left - margin.right;
-var height = 700 - margin.top - margin.bottom;
+var MARGIN = { top: 40, right: 20, bottom: 60, left: 80 };
+var width = 1400 - MARGIN.left - MARGIN.right;
+var height = 700 - MARGIN.top - MARGIN.bottom;
 
 var x = d3.scaleLinear().range([0, width]);
 
 var y = d3.scaleLinear().range([height, 0]);
 
-var chart = d3.select('#chart').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
+var chart = d3.select('#chart').attr('width', width + MARGIN.left + MARGIN.right).attr('height', height + MARGIN.top + MARGIN.bottom).append('g').attr('transform', 'translate(' + MARGIN.left + ', ' + MARGIN.top + ')');
 
 var tooltip = d3.select('.data-chart').append('div').attr('class', 'tooltip').style('visibility', 'hidden');
 
-d3.json(url, function (err, res) {
+d3.json(url, function (error, res) {
   var companies = Object.values(res);
 
   // Helper functions
@@ -9527,9 +9527,9 @@ d3.json(url, function (err, res) {
   });
 
   // Set range of axes
-  x.domain([-10, d3.max(companies, function (d) {
+  x.domain(d3.extent(companies, function (d) {
     return d.marketCap;
-  })]);
+  }));
   y.domain(d3.extent(companies, function (d) {
     return d.totalReturn * 1.25;
   }));
@@ -9548,8 +9548,21 @@ d3.json(url, function (err, res) {
     hideToolTip();
   };
 
+  var formatTotalReturnText = function formatTotalReturnText(totalReturn) {
+    var returnText = document.getElementById('total-return');
+    returnText.innerHTML = totalReturn + '%';
+
+    if (totalReturn >= 0) {
+      returnText.style.color = "green";
+    } else {
+      returnText.style.color = "red";
+    }
+  };
+
   var activateToolTip = function activateToolTip(d) {
-    tooltip.style('visibility', 'visible').html('\n        <h2 class="stock-title">' + d.companyName + ' (' + d.symbol + ')</h2>\n        <div class="stock-info">\n          Market Cap: ' + d.marketCap + 'B<br />\n          ' + timeFrame + ' Total Return: ' + d.totalReturn + '%<br />\n          P/E Ratio: ' + (d.peRatio === 0 ? 'Not Applicable' : d.peRatio) + '\n        </div>\n        <svg id="sub-chart"></svg>\n      ');
+    tooltip.style('visibility', 'visible').html('\n        <h2 class="stock-title">' + d.companyName + ' (' + d.symbol + ')</h2>\n        <div class="stock-info">\n          Market Cap: ' + d.marketCap + 'B<br />\n          ' + timeFrame + ' Total Return: <span id="total-return"></span><br />\n          P/E Ratio: ' + (d.peRatio === 0 ? 'Not Applicable' : d.peRatio) + '\n        </div>\n        <svg id="sub-chart"></svg>\n      ');
+
+    formatTotalReturnText(d.totalReturn);
   };
 
   var hideToolTip = function hideToolTip() {
@@ -9569,8 +9582,8 @@ d3.json(url, function (err, res) {
     }).strength(0.1)).force('y', d3.forceY(function (d) {
       return y(d.totalReturn);
     }).strength(0.1)).force('collide', d3.forceCollide(function (d) {
-      return d.radius * 0.9;
-    }).iterations(5));
+      return d.radius * 0.95;
+    }));
 
     var ticked = function ticked() {
       circles.attr('cx', function (d) {
@@ -9587,7 +9600,7 @@ d3.json(url, function (err, res) {
 
   var updateTimeFrame = function updateTimeFrame(newTime) {
     timeFrame = newTime;
-    url = 'https://api.iextrading.com/1.0/stock/market/batch?symbols=' + symbols + '&types=quote,news,chart,earnings&range=' + newTime + '&last=3';
+    url = 'https://api.iextrading.com/1.0/stock/market/batch?symbols=' + SYMBOLS + '&types=quote,news,chart,earnings&range=' + newTime + '&last=3';
 
     // Change totalReturn to find new y on chart update then call simulate
     d3.json(url, function (_, updatedCompanies) {
@@ -9598,32 +9611,57 @@ d3.json(url, function (err, res) {
         oldData.chart = updated[i].chart;
       });
 
+      // Update y-axis and transition out/in
       y.domain(d3.extent(companies, function (d) {
         return d.totalReturn;
       }));
+
+      var updateChartAxis = d3.select('#chart').transition();
+
+      updateChartAxis.select('.y-axis').duration(500).call(yAxis);
+
+      updateChartAxis.select('.x-axis').duration(500).attr('transform', 'translate(0, ' + alignAxes() + ')').attr('class', 'axis-label x-axis').call(xAxis);
 
       simulate();
     });
   };
 
+  // Updating based on radio buttons
   d3.select('#one-month').on('click', function () {
-    return updateTimeFrame(time.oneMonth);
+    return updateTimeFrame(TIME.oneMonth);
   });
   d3.select('#one-year').on('click', function () {
-    return updateTimeFrame(time.oneYear);
+    return updateTimeFrame(TIME.oneYear);
   });
   d3.select('#two-years').on('click', function () {
-    return updateTimeFrame(time.twoYears);
+    return updateTimeFrame(TIME.twoYears);
   });
   d3.select('#five-years').on('click', function () {
-    return updateTimeFrame(time.fiveYears);
+    return updateTimeFrame(TIME.fiveYears);
   });
 
-  chart.append('g').attr('transform', 'translate(0, ' + height + ')').attr('class', 'axis-label').call(d3.axisBottom(x));
+  var yAxis = d3.axisLeft(y).ticks(5);
+  var xAxis = d3.axisBottom(x);
 
-  chart.append('text').attr('transform', 'translate(' + width / 2 + ', ' + (height + margin.top + 10) + ')').style('text-anchor', 'middle').attr('class', 'chart-label').text('Market Cap (in billions)');
+  var alignAxes = function alignAxes() {
+    var yRange = d3.extent(companies, function (d) {
+      return d.totalReturn;
+    });
 
-  chart.append('text').attr("transform", 'translate(' + (0 - margin.left) + ', ' + height / 2 + ') rotate(-90)').attr('dy', '1em').style('text-anchor', 'middle').attr('class', 'chart-label').text('Total Return (%)');
+    if (yRange[0] < 0 && yRange[1] > 0) {
+      return yRange[1] / (yRange[1] - yRange[0]) * height;
+    } else {
+      return height;
+    }
+  };
+
+  chart.append('g').attr('transform', 'translate(0, ' + alignAxes() + ')').attr('class', 'axis-label x-axis').call(xAxis);
+
+  chart.append('text').attr('transform', 'translate(' + width / 2 + ', ' + (height + MARGIN.top + 10) + ')').attr('class', 'chart-label').text('Market Cap (in billions)');
+
+  chart.append('g').attr('class', 'axis-label y-axis').call(yAxis);
+
+  chart.append('text').attr("transform", 'translate(' + (0 - MARGIN.left) + ', ' + height / 2 + ') rotate(-90)').attr('dy', '1em').attr('class', 'chart-label').text('Total Return (%)');
 });
 
 /***/ }),
@@ -23235,6 +23273,12 @@ var displayStockChart = function displayStockChart(chartData, chartId) {
     return chartYAxis(data.close);
   });
 
+  var fillArea = d3.area().x(function (data) {
+    return chartXAxis(data.date);
+  }).y0(chartHeight).y1(function (data) {
+    return chartYAxis(data.close);
+  });
+
   chartXAxis.domain(d3.extent(chartInfo, function (data) {
     return data.date;
   }));
@@ -23247,6 +23291,8 @@ var displayStockChart = function displayStockChart(chartData, chartId) {
   stockChart.append('g').call(d3.axisLeft(chartYAxis).ticks(3));
 
   stockChart.append('path').datum(chartInfo).attr('class', 'stock-chart-line').attr('d', stockChartLine);
+
+  stockChart.append('path').datum(chartInfo).attr('class', 'fill-area').attr('d', fillArea);
 };
 
 exports.default = displayStockChart;

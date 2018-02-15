@@ -25,6 +25,11 @@ const displayStockChart = (chartData, chartId) => {
     .x(data => chartXAxis(data.date))
     .y(data => chartYAxis(data.close));
 
+  const fillArea = d3.area()
+    .x(data => chartXAxis(data.date))
+    .y0(chartHeight)
+    .y1(data => chartYAxis(data.close));
+
   chartXAxis.domain(d3.extent(chartInfo, data => data.date));
   chartYAxis.domain(d3.extent(chartInfo, data => data.close));
 
@@ -39,6 +44,11 @@ const displayStockChart = (chartData, chartId) => {
     .datum(chartInfo)
     .attr('class', 'stock-chart-line')
     .attr('d', stockChartLine);
+
+  stockChart.append('path')
+    .datum(chartInfo)
+    .attr('class', 'fill-area')
+    .attr('d', fillArea);
 };
 
 
