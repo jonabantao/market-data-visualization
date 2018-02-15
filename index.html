@@ -4,14 +4,42 @@
   <meta charset="utf-8" />
   <title>Market Data</title>
   <link href="https://fonts.googleapis.com/css?family=Roboto+Slab" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
   <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="./css/main.css" />
 </head>
 <body>
   <article class="page-article">
-    <header>
-      <h1>Stock Market Over The Past Five Years</h1>
+    <header class="article-title">
+      <h1 class="title-text">Stock Market Over The Past Five Years</h1>
     </header>
+    <div class="mini-article">
+      <p>
+        As of February 2018, the American stock market 
+        has been in a bull market for a consecutive nine years. While the S&P500
+        has risen approximately <a href="https://ycharts.com/indicators/sandp_500_5_year_return">89%</a> in five years,
+        the NASDAQ-100 has risen almost twice as high, having a total return of almost 
+        <a href="https://www.nasdaq.com/markets/indices/nasdaq-total-returns.aspx">156%</a>.
+      </p>
+      <p>
+        This chart uses the D3.js library to show selected companies and their
+        performance up to the past five years. All data is pulled from the 
+        <a href="https://iextrading.com/developer/">IEX Developer API</a>. Bubbles
+        are sized according to their price-to-earnings ratio (P/E). For fundamental
+        investors, a larger P/E generally means purchasing a share of a company 
+        is relatively expensive compared to one with a low P/E.
+      </p>
+      <p>
+        Hover over each bubble to see which company the bubble represents, as well
+        as their stock performance for the given timeframe. Select the buttons on
+        top to switch between timeframes.
+      </p>
+      <p>
+        Note that there are some companies listed on the chart with a P/E ratio of
+        "Not Applicable". Not Applicable P/E ratios are negative mainly from reporting
+        a loss in earnings per share.
+      </p>
+    </div>
   </article>
   <section class="data-chart">
     <nav class="nav-container">
