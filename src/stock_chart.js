@@ -2,8 +2,8 @@ import * as d3 from 'd3';
 
 const displayStockChart = (chartData, chartId) => {
   const subSvg = d3.select(chartId);
-  const CHART_MARGIN = { top: 25, left: 25 };
-  const chartWidth = 675 - CHART_MARGIN.left;
+  const CHART_MARGIN = { top: 25, left: 50 };
+  const chartWidth = 650 - CHART_MARGIN.left;
   const chartHeight = 120 - CHART_MARGIN.top;
   const stockChart = subSvg.append('g')
     .attr('transform', `translate(${CHART_MARGIN.left}, ${CHART_MARGIN.top})`);

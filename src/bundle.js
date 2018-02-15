@@ -23211,8 +23211,8 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 var displayStockChart = function displayStockChart(chartData, chartId) {
   var subSvg = d3.select(chartId);
-  var CHART_MARGIN = { top: 25, left: 25 };
-  var chartWidth = 675 - CHART_MARGIN.left;
+  var CHART_MARGIN = { top: 25, left: 50 };
+  var chartWidth = 650 - CHART_MARGIN.left;
   var chartHeight = 120 - CHART_MARGIN.top;
   var stockChart = subSvg.append('g').attr('transform', 'translate(' + CHART_MARGIN.left + ', ' + CHART_MARGIN.top + ')');
 
