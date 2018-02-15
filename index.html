@@ -3,19 +3,64 @@
 <head>
   <meta charset="utf-8" />
   <title>Market Data</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Slab" rel="stylesheet">
+  <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="./css/main.css" />
 </head>
 <body>
+  <article class="page-article">
+    <header>
+      <h1>Stock Market Over The Past Five Years</h1>
+    </header>
+  </article>
   <section class="data-chart">
-    <nav class="time-nav">
-      <button id="one-month">1m</button>
-      <button id="one-year">1y</button>
-      <button id="two-years">2y</button>
-      <button id="five-years">5y</button>
+    <nav class="nav-container">
+      <a class="nav-links" href="https://www.linkedin.com/in/jmabantao/">
+        <i class="fab fa-linkedin-in nav-icon"></i>
+      </a>
+      <a class="nav-links" href="https://github.com/jonabantao/market-data-visualization">
+        <i class="fab fa-github nav-icon"></i>        
+      </a>
     </nav>
+    <div class="time-nav">      
+      <input 
+        class="time-radio"
+        type="radio" 
+        name="time" 
+        id="one-month"
+      >
+        <p class="radio-text">1 Month</p>
+      </input>
+      <input 
+        class="time-radio"
+        type="radio" 
+        name="time" 
+        id="one-year" checked
+      >
+        <p class="radio-text">1 Year</p>
+      </input>
+      <input 
+        class="time-radio"
+        type="radio" 
+        name="time" 
+        id="two-years"
+      >
+        <p class="radio-text">2 Years</p>
+      </input>
+      <input 
+        class="time-radio"
+        type="radio" 
+        name="time" 
+        id="five-years"
+      >
+        <p class="radio-text">5 Years</p>
+      </input>
+    </div>
     <svg class="main-svg" id="chart"></svg>
+    <small>Data provided for free by <a href="https://iextrading.com/developer/">IEX.</a></small>
   </section>
 
   <script src="./src/bundle.js"></script>
 </body>
 </html>
+

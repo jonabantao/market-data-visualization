@@ -73,8 +73,11 @@ d3.json(url, (err, res) => {
     d3.select(this).raise().transition()
       .attr('opacity', '1')
       .duration('300')
-      .attr('r', 35)
-      .attr('cursor', 'pointer');
+      .attr('r', 35);
+
+    activateToolTip(d);
+
+    displayStockChart(d.chart, '#sub-chart');
   };
 
   const mouseOut = function(d) {
@@ -82,24 +85,28 @@ d3.json(url, (err, res) => {
       .duration('300')
       .attr('opacity', 0.7)
       .attr('r', d.radius);
-    tooltip.style('visibility', 'hidden');
+    
+    hideToolTip();
   };
 
-  const mouseClick = function(d) {
+  const activateToolTip = d => {
     tooltip
       .style('visibility', 'visible')
       .html(
-      `<h2 class="stock-title">${d.companyName} (${d.symbol})</h2>
-      <div class="stock-info">
-        Market Cap: ${d.marketCap}B<br />
-        ${timeFrame} Total Return: ${d.totalReturn}%<br />
-        P/E Ratio: ${d.peRatio === 0 ? 'Not Applicable' : d.peRatio}
-      </div>
-      <svg id="sub-chart"></svg>
+        `
+        <h2 class="stock-title">${d.companyName} (${d.symbol})</h2>
+        <div class="stock-info">
+          Market Cap: ${d.marketCap}B<br />
+          ${timeFrame} Total Return: ${d.totalReturn}%<br />
+          P/E Ratio: ${d.peRatio === 0 ? 'Not Applicable' : d.peRatio}
+        </div>
+        <svg id="sub-chart"></svg>
       `
-    );
+      );
+  };
 
-    displayStockChart(d.chart, '#sub-chart');
+  const hideToolTip = () => {
+    tooltip.style('visibility', 'hidden');
   };
 
   let circles = chart.selectAll('.stock')
@@ -110,9 +117,8 @@ d3.json(url, (err, res) => {
     .attr('fill', d => d.color)
     .attr('stroke', 'gray')
     .attr('r', d => d.radius)
-    .on('mouseover', mouseOver)
-    .on('mouseout', mouseOut)
-    .on('click', mouseClick);
+    .on('mouseenter', mouseOver)
+    .on('mouseleave', mouseOut);
 
   // Simulate entry and prevent collision
   const simulate = () => {

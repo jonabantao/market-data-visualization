@@ -9535,25 +9535,32 @@ d3.json(url, function (err, res) {
   }));
 
   var mouseOver = function mouseOver(d) {
-    d3.select(this).raise().transition().attr('opacity', '1').duration('300').attr('r', 35).attr('cursor', 'pointer');
+    d3.select(this).raise().transition().attr('opacity', '1').duration('300').attr('r', 35);
+
+    activateToolTip(d);
+
+    (0, _stock_chart2.default)(d.chart, '#sub-chart');
   };
 
   var mouseOut = function mouseOut(d) {
     d3.select(this).transition().duration('300').attr('opacity', 0.7).attr('r', d.radius);
-    tooltip.style('visibility', 'hidden');
+
+    hideToolTip();
   };
 
-  var mouseClick = function mouseClick(d) {
-    tooltip.style('visibility', 'visible').html('<h2 class="stock-title">' + d.companyName + ' (' + d.symbol + ')</h2>\n      <div class="stock-info">\n        Market Cap: ' + d.marketCap + 'B<br />\n        ' + timeFrame + ' Total Return: ' + d.totalReturn + '%<br />\n        P/E Ratio: ' + (d.peRatio === 0 ? 'Not Applicable' : d.peRatio) + '\n      </div>\n      <svg id="sub-chart"></svg>\n      ');
+  var activateToolTip = function activateToolTip(d) {
+    tooltip.style('visibility', 'visible').html('\n        <h2 class="stock-title">' + d.companyName + ' (' + d.symbol + ')</h2>\n        <div class="stock-info">\n          Market Cap: ' + d.marketCap + 'B<br />\n          ' + timeFrame + ' Total Return: ' + d.totalReturn + '%<br />\n          P/E Ratio: ' + (d.peRatio === 0 ? 'Not Applicable' : d.peRatio) + '\n        </div>\n        <svg id="sub-chart"></svg>\n      ');
+  };
 
-    (0, _stock_chart2.default)(d.chart, '#sub-chart');
+  var hideToolTip = function hideToolTip() {
+    tooltip.style('visibility', 'hidden');
   };
 
   var circles = chart.selectAll('.stock').data(companies).enter().append('circle').attr('class', 'stock').attr('opacity', '0.7').attr('fill', function (d) {
     return d.color;
   }).attr('stroke', 'gray').attr('r', function (d) {
     return d.radius;
-  }).on('mouseover', mouseOver).on('mouseout', mouseOut).on('click', mouseClick);
+  }).on('mouseenter', mouseOver).on('mouseleave', mouseOut);
 
   // Simulate entry and prevent collision
   var simulate = function simulate() {
@@ -23204,9 +23211,10 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 var displayStockChart = function displayStockChart(chartData, chartId) {
   var subSvg = d3.select(chartId);
-  var chartWidth = 600;
-  var chartHeight = 130;
-  var stockChart = subSvg.append('g').attr('transform', 'translate(0, 0)');
+  var CHART_MARGIN = { top: 25, left: 25 };
+  var chartWidth = 675 - CHART_MARGIN.left;
+  var chartHeight = 120 - CHART_MARGIN.top;
+  var stockChart = subSvg.append('g').attr('transform', 'translate(' + CHART_MARGIN.left + ', ' + CHART_MARGIN.top + ')');
 
   var chartXAxis = d3.scaleTime().rangeRound([0, chartWidth]);
 
@@ -23234,11 +23242,11 @@ var displayStockChart = function displayStockChart(chartData, chartId) {
     return data.close;
   }));
 
-  stockChart.append("g").attr("transform", "translate(0," + chartHeight + ")").call(d3.axisBottom(chartXAxis))
-  // Used to remove axis line
-  .select(".domain").remove();
+  stockChart.append('g').attr('transform', 'translate(0,' + chartHeight + ')').call(d3.axisBottom(chartXAxis).ticks(6));
 
-  stockChart.append('path').datum(chartInfo).attr('class', 'stock-chart-line').attr("d", stockChartLine);
+  stockChart.append('g').call(d3.axisLeft(chartYAxis).ticks(3));
+
+  stockChart.append('path').datum(chartInfo).attr('class', 'stock-chart-line').attr('d', stockChartLine);
 };
 
 exports.default = displayStockChart;

@@ -2,10 +2,11 @@ import * as d3 from 'd3';
 
 const displayStockChart = (chartData, chartId) => {
   const subSvg = d3.select(chartId);
-  const chartWidth = 600;
-  const chartHeight = 130;
+  const CHART_MARGIN = { top: 25, left: 25 };
+  const chartWidth = 675 - CHART_MARGIN.left;
+  const chartHeight = 120 - CHART_MARGIN.top;
   const stockChart = subSvg.append('g')
-    .attr('transform', `translate(0, 0)`);
+    .attr('transform', `translate(${CHART_MARGIN.left}, ${CHART_MARGIN.top})`);
 
   const chartXAxis = d3.scaleTime()
     .rangeRound([0, chartWidth]);
@@ -27,18 +28,17 @@ const displayStockChart = (chartData, chartId) => {
   chartXAxis.domain(d3.extent(chartInfo, data => data.date));
   chartYAxis.domain(d3.extent(chartInfo, data => data.close));
 
-  stockChart.append("g")
-    .attr("transform", "translate(0," + chartHeight + ")")
-    .call(d3.axisBottom(chartXAxis))
-    // Used to remove axis line
-    .select(".domain")
-    .remove();
+  stockChart.append('g')
+    .attr('transform', 'translate(0,' + chartHeight + ')')
+    .call(d3.axisBottom(chartXAxis).ticks(6));
 
+  stockChart.append('g')
+    .call(d3.axisLeft(chartYAxis).ticks(3));
 
   stockChart.append('path')
     .datum(chartInfo)
     .attr('class', 'stock-chart-line')
-    .attr("d", stockChartLine);
+    .attr('d', stockChartLine);
 };
 
 
