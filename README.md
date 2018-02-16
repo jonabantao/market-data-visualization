@@ -28,7 +28,7 @@ updateChartAxis.select('.x-axis')
 simulate();
 ```
 
-![alt text](https://media.giphy.com/media/24FWa3b2ctQxqjbK0Z/giphy.gif "Demonstration")
+![alt text](https://i.imgur.com/P2bJgRS.gif "Demonstration")
 
 # Technologies Used
 * Canvas
