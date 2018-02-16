@@ -1,5 +1,5 @@
 # Market Data Visualization
-## [Live Link](https://jonabantao.github.io/market-data-visualization/)
+### [Live Link](https://jonabantao.github.io/market-data-visualization/)
 
 This JavaScript mini-project was created in less than a week exploring the D3.js library which was new to me at the time. 
 
