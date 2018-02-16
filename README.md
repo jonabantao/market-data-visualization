@@ -11,7 +11,7 @@ Users are able to select the timeframe from the graph and view individual compan
 * Mousing over each bubble will display a popup of the select company details and their stock performance
 
 # D3.js Functionality
-Using the D3 library allowed the project to dynamically move the axes upon selecting a different timeframe. With D3, you are able to select a DOM element and call functions within the D3 library to manipulate it.
+Using the D3 library allowed the project to dynamically move the axes upon selecting a different timeframe. With D3, you are able to select an element within the SVG and call functions within the D3 library to manipulate it.
 ```
 let updateChartAxis = d3.select('#chart').transition();
 
