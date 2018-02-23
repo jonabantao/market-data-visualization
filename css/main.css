@@ -46,27 +46,19 @@ a {
   justify-content: flex-end;
   align-items: center;
   margin-left: 60px;
-  margin-bottom: 15px;
+  margin-bottom: 8px;
 }
 
 .time-radio {
   display: inline-block;
-  font-size: 1rem;
-  margin-left: 10px;
+  transform: scale(1.5);
+  margin-left: 20px;
   vertical-align: middle;
 }
 
 .radio-text {
-  margin-left: 5px;
-}
-
-.mini-article {
-  margin-top: 10px;
-}
-
-.mini-article p {
-  margin-bottom: 10px;
-  font-size: 0.9rem;
+  font-size: 1.2rem;
+  margin-left: 15px;
 }
 
 .nav-container {
