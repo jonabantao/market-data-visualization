@@ -23,45 +23,48 @@
 </head>
 
 <body>
-  <article class="page-article">
-
-    <header class="article-title">
-      <h1 class="title-text">Stock Market Performance</h1>
-    </header>
-    <p class="article-instructions">
-      Hover over each bubble to see which company the bubble represents, as well as their stock performance for the given timeframe.
-      <br />
-      <br /> Select the buttons on top to switch between timeframes.
-    </p>
-  </article>
-  <section class="data-chart">
-    <nav class="nav-container">
-      <a class="nav-links" href="https://www.linkedin.com/in/jmabantao/">
-        <i class="fab fa-linkedin-in nav-icon"></i>
-      </a>
-      <a class="nav-links" href="https://github.com/jonabantao/market-data-visualization">
-        <i class="fab fa-github nav-icon"></i>
-      </a>
-    </nav>
-    <div class="time-nav">
-      <input class="time-radio" type="radio" name="time" id="one-month">
-      <p class="radio-text">1 Month</p>
-      </input>
-      <input class="time-radio" type="radio" name="time" id="one-year" checked>
-      <p class="radio-text">1 Year</p>
-      </input>
-      <input class="time-radio" type="radio" name="time" id="two-years">
-      <p class="radio-text">2 Years</p>
-      </input>
-      <input class="time-radio" type="radio" name="time" id="five-years">
-      <p class="radio-text">5 Years</p>
-      </input>
-    </div>
+  <main class="main-container">
+    <section class="page-header">
+      <article class="page-article">
+        <header class="article-title">
+          <h1 class="title-text">Stock Market Performance</h1>
+        </header>
+        <p class="article-instructions">
+          Hover over each bubble to see which company the bubble represents, as well as their stock performance for the given timeframe.
+          <br />
+          <br /> Select the buttons to switch between timeframes.
+        </p>
+      </article>
+      <section class="section-nav">
+        <nav class="nav-container">
+          <a class="nav-links" href="https://www.linkedin.com/in/jmabantao/">
+            <i class="fab fa-linkedin-in nav-icon"></i>
+          </a>
+          <a class="nav-links" href="https://github.com/jonabantao/market-data-visualization">
+            <i class="fab fa-github nav-icon"></i>
+          </a>
+        </nav>
+        <nav class="time-nav">
+          <input class="time-radio" type="radio" name="time" id="one-month">
+          <p class="radio-text">1 Month</p>
+          </input>
+          <input class="time-radio" type="radio" name="time" id="one-year" checked>
+          <p class="radio-text">1 Year</p>
+          </input>
+          <input class="time-radio" type="radio" name="time" id="two-years">
+          <p class="radio-text">2 Years</p>
+          </input>
+          <input class="time-radio" type="radio" name="time" id="five-years">
+          <p class="radio-text">5 Years</p>
+          </input>
+        </nav>
+      </section>
+    </section>
     <svg class="main-svg" id="chart"></svg>
-    <small>Data provided for free by
+    <small class=".small-footer">Data provided for free by
       <a href="https://iextrading.com/developer/">IEX.</a>
     </small>
-  </section>
+  </main>
 
   <script src="./src/bundle.js"></script>
 </body>

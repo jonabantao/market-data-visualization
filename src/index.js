@@ -13,7 +13,7 @@ let timeFrame = TIME.oneYear;
 let url = `https://api.iextrading.com/1.0/stock/market/batch?symbols=${SYMBOLS}&types=quote,news,chart,earnings&range=${timeFrame}&last=3`;
 
 const MARGIN = { top: 40, right: 20, bottom: 60, left: 80 };
-const width = 1400 - MARGIN.left - MARGIN.right;
+const width = 1210 - MARGIN.left - MARGIN.right;
 const height = 700 - MARGIN.top - MARGIN.bottom;
 
 const x = d3.scaleLinear()
@@ -28,7 +28,7 @@ const chart = d3.select('#chart')
   .append('g')
   .attr('transform', `translate(${MARGIN.left}, ${MARGIN.top})`);
 
-let tooltip = d3.select('.data-chart').append('div')
+let tooltip = d3.select('.main-container').append('div')
   .attr('class', 'tooltip')
   .style('visibility', 'hidden');
 
