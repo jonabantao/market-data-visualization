@@ -9952,7 +9952,7 @@ var timeFrame = TIME.oneYear;
 var url = 'https://api.iextrading.com/1.0/stock/market/batch?symbols=' + SYMBOLS + '&types=quote,news,chart,earnings&range=' + timeFrame + '&last=3';
 
 var MARGIN = { top: 40, right: 20, bottom: 60, left: 80 };
-var width = 1400 - MARGIN.left - MARGIN.right;
+var width = 1210 - MARGIN.left - MARGIN.right;
 var height = 700 - MARGIN.top - MARGIN.bottom;
 
 var x = d3.scaleLinear().range([0, width]);
@@ -9961,7 +9961,7 @@ var y = d3.scaleLinear().range([height, 0]);
 
 var chart = d3.select('#chart').attr('width', width + MARGIN.left + MARGIN.right).attr('height', height + MARGIN.top + MARGIN.bottom).append('g').attr('transform', 'translate(' + MARGIN.left + ', ' + MARGIN.top + ')');
 
-var tooltip = d3.select('.data-chart').append('div').attr('class', 'tooltip').style('visibility', 'hidden');
+var tooltip = d3.select('.main-container').append('div').attr('class', 'tooltip').style('visibility', 'hidden');
 
 d3.json(url, function (error, res) {
   var companies = Object.values(res);

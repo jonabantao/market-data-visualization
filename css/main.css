@@ -11,9 +11,6 @@ body {
   font-family: 'Roboto Slab', serif;
   font-size: 16px;
   background-color: #808080;
-  display: flex;
-  justify-content: center;
-  padding: 15px 50px;
   color: #FFFFFF;
 }
 
@@ -27,18 +24,20 @@ a {
   margin-bottom: 30px;
 } 
 
-.data-chart {
+.main-container {
   display: flex;
   flex-direction: column;
   position: relative;  
-  margin-top: 5px;
+  margin: 50px auto;
   font-family: 'Open Sans', sans-serif;
+  width: 1250px;
 }
 
 .main-svg {
   background-color: #E0FFFF;
   padding: 10px 20px;
   border: 1px solid #1C2833;
+  align-self: center;
 }
 
 .time-nav {
@@ -46,7 +45,7 @@ a {
   justify-content: flex-end;
   align-items: center;
   margin-left: 60px;
-  margin-bottom: 8px;
+  margin-bottom: 25px;
 }
 
 .time-radio {
@@ -82,8 +81,12 @@ a {
 }
 
 .page-article {
-  min-width: 365px;
-  margin-right: 15px;
+  flex: 1;
+}
+
+.page-header {
+  display: flex;
+  width: 100%;
 }
 
 .tooltip {
@@ -98,7 +101,7 @@ a {
   padding: 10px 20px;
   border-radius: 3px;
   font-size: 0.8rem;
-  top: 100px;
+  top: 180px;
   right: 10px;
   color: #1C2833;
 };
@@ -135,8 +138,11 @@ a {
   stroke-width: 1.8;
 }
 
-.page-article {
-  margin-top: 90px;
+.section-nav {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
 }
 
 .fill-area {
