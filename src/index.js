@@ -56,9 +56,10 @@ d3.json(url, (error, res) => {
 
   // Idea to constrain circle size from 
   // http://chimera.labs.oreilly.com/books/1230000000345/ch07.html#_refining_the_plot
-  let minPe = d3.min(companies, data => data.peRatio);
-  let maxPe = d3.max(companies, data => data.peRatio);
-  let radiusScale = d3.scaleSqrt().range([5,30]).domain([minPe, maxPe]);
+  let peExtent = d3.extent(companies, d => d.peRatio);
+  let radiusScale = d3.scaleSqrt()
+    .domain(peExtent)
+    .range([5,30]);
 
   companies.forEach(d => {
     d.radius = radiusScale(d.peRatio);
