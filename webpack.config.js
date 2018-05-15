@@ -1,11 +1,15 @@
 var path = require('path');
+var webpack = require('webpack');
 
 module.exports = {
   context: __dirname,
-  entry: "./src/index.js",
+  entry: {
+    "bundle": "./src/index.js",
+    "bundle.min": "./src/index.js",
+  },
   output: {
     path: path.resolve(__dirname, "src"),
-    filename: "bundle.js"
+    filename: "[name].js"
   },
   module: {
     loaders: [{
@@ -20,5 +24,11 @@ module.exports = {
   devtool: 'source-map',
   resolve: {
     extensions: [".js", '*']
-  }
+  },
+  plugins: [
+    new webpack.optimize.UglifyJsPlugin({
+      include: /\.min\.js$/,
+      minimize: true
+    })
+  ]
 };
